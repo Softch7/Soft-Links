@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soft-Links</title>
+    <link rel="icon" href="icon.png" type="image/png">
+    <style>
+        :root {
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #888888;
+            --border-color: #e2e8f0;
+            
+            /* アイコンの背景色（薄めの色） */
+            --yt-bg: #ffebeb;
+            --discord-bg: #eef2fe;
+            --roblox-bg: #eaf5ff;
+            --x-bg: #f0f0f0;
+            --tiktok-bg: #e6fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 430px;
+            text-align: center;
+        }
+
+        /* 1番上のプロフィールエリア */
+        .profile {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        .profile-img-container {
+            width: 96px;
+            height: 96px;
+            margin-bottom: 16px;
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        /* 自己紹介文 */
+        .profile-bio {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            max-width: 340px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* 自己紹介文の下の線 */
+        .divider {
+            width: 85%;
+            height: 1px;
+            background-color: var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        /* リンク全体のリスト */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%; /* リスト全体を親要素いっぱいに広げる */
+        }
+
+        /* リンクボタンの共通スタイル */
+        .link-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 14px 16px;
+            border-radius: 20px;
+            width: 100%; /* 常に親要素（container）と同じ最大幅に固定 */
+            
+            /* 初期状態の影はごく薄く設定 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            
+            /* 影の変化を滑らかにするための設定 */
+            transition: box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1), transform 0.1s ease;
+            
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* 順番にふわっと出す初期表示アニメーション */
+        .link-item:nth-child(1) { animation: fadeInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.15s forwards; }
+        .link-item:nth-child(2) { animation: fadeInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.25s forwards; }
+        .link-item:nth-child(3) { animation: fadeInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.35s forwards; }
+        .link-item:nth-child(4) { animation: fadeInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.45s forwards; }
+        .link-item:nth-child(5) { animation: fadeInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.55s forwards; }
+
+        /* 触れた時（ホバー）は影だけをふわっと出す */
+        .link-item:hover {
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+
+        /* クリックした瞬間の「ぽちっ」とする動き */
+        .link-item:active {
+            transform: scale(0.98) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.03);
+        }
+
+        /* 左側の角丸アイコン枠 */
+        .icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        /* 各プラットフォームの専用背景設定 */
+        .youtube .icon-box { background-color: var(--yt-bg); }
+        .tiktok .icon-box { background-color: var(--tiktok-bg); }
+        .discord .icon-box { background-color: var(--discord-bg); }
+        .roblox .icon-box { background-color: var(--roblox-bg); }
+        .x-twitter .icon-box { background-color: var(--x-bg); }
+
+        /* SVGアイコンのサイズ */
+        .icon-box img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        /* リンクテキスト部分（右側のスペースいっぱいに広げて揃える） */
+        .text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            flex-grow: 1; /* ここを追加して常に最大まで広げる */
+        }
+
+        .link-title {
+            font-weight: bold;
+            font-size: 1.05rem;
+            line-height: 1.3;
+        }
+
+        .link-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.2;
+        }
+
+        /* --- アニメーションの定義 --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="profile">
+            <div class="profile-img-container">
+                <img src="icon.png" alt="アイコン" class="profile-img">
+            </div>
+            <div class="profile-name">Soft</div>
+            <div class="profile-bio">YoutubeでRobloxの動画を投稿しています！</div>
+            <div class="divider"></div>
+        </div>
+
+        <div class="links-list">
+            
+            <a href="https://www.youtube.com/@Soft_Ch7" target="_blank" class="link-item youtube">
+                <div class="icon-box">
+                    <img src="youtube.svg" alt="YouTube">
+                </div>
+                <div class="text-container">
+                    <span class="link-title">YouTube</span>
+                    <span class="link-desc">動画はここでアップロードしてます！</span>
+                </div>
+            </a>
+
+            <a href="https://www.tiktok.com/@soft_ch7" target="_blank" class="link-item tiktok">
+                <div class="icon-box">
+                    <img src="tiktok.svg" alt="TikTok">
+                </div>
+                <div class="text-container">
+                    <span class="link-title">TikTok</span>
+                    <span class="link-desc">いつか投稿するかも...？</span> </div>
+            </a>
+
+            <a href="https://discord.gg/y26cteqh8W" target="_blank" class="link-item discord">
+                <div class="icon-box">
+                    <img src="discord.svg" alt="Discord">
+                </div>
+                <div class="text-container">
+                    <span class="link-title">Discord</span>
+                    <span class="link-desc">公式サーバー！</span>
+                </div>
+            </a>
+
+            <a href="https://www.roblox.com/ja/users/8095459687/profile" target="_blank" class="link-item roblox">
+                <div class="icon-box">
+                    <img src="roblox.svg" alt="Roblox">
+                </div>
+                <div class="text-container">
+                    <span class="link-title">Roblox</span>
+                    <span class="link-desc">よく遊んでます！</span>
+                </div>
+            </a>
+
+            <a href="https://x.com/S0ft_4z" target="_blank" class="link-item x-twitter">
+                <div class="icon-box">
+                    <img src="x.svg" alt="X">
+                </div>
+                <div class="text-container">
+                    <span class="link-title">X/Twitter</span>
+                    <span class="link-desc">リポスト専用</span>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+</body>
+</html>
